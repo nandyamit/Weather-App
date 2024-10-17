@@ -47,7 +47,6 @@ Click on cities in the search history to quickly view their weather again.
 Frontend: HTML, Javascript
 Backend: Node.js with Express.js
 Weather Data: OpenWeather API
-Styling: [Your choice of CSS framework, e.g., Bootstrap, Tailwind]
 
 ## Contributing
 Contributions to improve the Weather Dashboard are welcome. Please follow these steps to contribute:
