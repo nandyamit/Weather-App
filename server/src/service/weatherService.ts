@@ -1,35 +1,49 @@
 import axios from 'axios';
+import dotenv from "dotenv"
+dotenv.config();
 
-interface Coordinates {
-  lat: number;
-  lon: number;
+interface WeatherData {
+  city: string;
+  date: string;
+  icon: string;
+  iconDescription: string;
+  tempF: number;
+  windSpeed: number;
+  humidity: number;
 }
 
 class WeatherService {
-  private static baseURL: string = 'https://api.openweathermap.org/data/2.5';
-  private static apiKey: string = process.env.OPENWEATHER_API_KEY || '';
+  private baseURL: string;
+  private apiKey: string;
 
-  private static async fetchLocationData(query: string): Promise<Coordinates> {
-    try {
-      const url = `${this.baseURL}/weather?q=${encodeURIComponent(query)}&appid=${this.apiKey}`;
-      const response = await axios.get(url);
-      const locationData = response.data;
-      return {
-        lat: locationData.coord.lat,
-        lon: locationData.coord.lon
-      };
-    } catch (error) {
-      console.error('Error fetching location data:', error);
-      throw new Error('Failed to fetch location data');
-    }
+  constructor() {
+    this.baseURL = 'https://api.openweathermap.org/data/2.5';
+    this.apiKey = process.env.OPENWEATHER_API_KEY || '';
   }
 
-  public static async getWeatherForCity(cityName: string): Promise<any> {
+  private formatDate(dt: number): string {
+    return new Date(dt * 1000).toLocaleDateString();
+  }
+
+  async getWeatherForCity(city: string): Promise<WeatherData[]> {
     try {
-      const coords = await this.fetchLocationData(cityName);
-      const url = `${this.baseURL}/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${this.apiKey}`;
+      const url = `${this.baseURL}/forecast?q=${city}&units=imperial&appid=${this.apiKey}`;
       const response = await axios.get(url);
-      return response.data;
+      const data = response.data;
+
+      // Format data to match frontend expectations
+      const weatherData = data.list.slice(0, 6).map((item: any) => ({
+        city: data.city.name,
+        date: this.formatDate(item.dt),
+        icon: item.weather[0].icon,
+        iconDescription: item.weather[0].description,
+        tempF: Math.round(item.main.temp),
+        windSpeed: Math.round(item.wind.speed),
+        humidity: item.main.humidity
+      }));
+
+      console.log('Transformed weather data:', weatherData); // Debug log
+      return weatherData;
     } catch (error) {
       console.error('Error fetching weather data:', error);
       throw new Error('Failed to fetch weather data');
@@ -37,4 +51,4 @@ class WeatherService {
   }
 }
 
-export default WeatherService;
+export default new WeatherService();
