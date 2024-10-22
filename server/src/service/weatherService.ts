@@ -1,5 +1,5 @@
 import axios from 'axios';
-import dotenv from "dotenv"
+import dotenv from 'dotenv';
 dotenv.config();
 
 interface WeatherData {
@@ -19,6 +19,7 @@ class WeatherService {
   constructor() {
     this.baseURL = 'https://api.openweathermap.org/data/2.5';
     this.apiKey = process.env.OPENWEATHER_API_KEY || '';
+    
   }
 
   private formatDate(dt: number): string {
